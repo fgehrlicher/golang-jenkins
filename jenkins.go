@@ -239,6 +239,22 @@ func (jenkins *Jenkins) CreateRawJob(jobName string, body []byte) error {
 	return jenkins.postXml("/createItem", params, reader, nil)
 }
 
+func (jenkins *Jenkins) GetRawJobConfig(name string) (job []byte, err error) {
+	requestUrl := jenkins.buildUrl(fmt.Sprintf("/job/%s/config.xml", name), nil)
+	req, err := http.NewRequest("GET", requestUrl, nil)
+	if err != nil {
+		return
+	}
+
+	resp, err := jenkins.sendRequest(req)
+	if err != nil {
+		return
+	}
+
+	defer resp.Body.Close()
+	return ioutil.ReadAll(resp.Body)
+}
+
 func (jenkins *Jenkins) CreateJob(mavenJobItem MavenJobItem, jobName string) error {
 	mavenJobItemXml, _ := xml.Marshal(mavenJobItem)
 	reader := bytes.NewReader(mavenJobItemXml)
