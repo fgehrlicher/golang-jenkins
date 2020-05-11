@@ -232,7 +232,13 @@ func (jenkins *Jenkins) GetLastBuild(job Job) (build Build, err error) {
 	return
 }
 
-// Create a new job
+func (jenkins *Jenkins) CreateRawJob(jobName string, body []byte) error {
+	reader := bytes.NewReader(body)
+	params := url.Values{"name": []string{jobName}}
+
+	return jenkins.postXml("/createItem", params, reader, nil)
+}
+
 func (jenkins *Jenkins) CreateJob(mavenJobItem MavenJobItem, jobName string) error {
 	mavenJobItemXml, _ := xml.Marshal(mavenJobItem)
 	reader := bytes.NewReader(mavenJobItemXml)
